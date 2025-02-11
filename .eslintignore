@@ -1,2 +1,3 @@
 next.config.mjs
 postcss.config.mjs
+firebase-messaging-sw.js

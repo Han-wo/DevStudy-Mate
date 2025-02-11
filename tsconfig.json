@@ -41,7 +41,8 @@
     ".next/types/**/*.ts",
     ".eslintrc.json",
     "postcss.config.mjs",
-    "next.config.mjs"
+    "next.config.mjs",
+    "public/firebase-messaging-sw.js"
   ],
   "exclude": ["node_modules"]
 }
