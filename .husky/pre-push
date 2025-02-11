@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Linting code using npm
+npm run lint
+
+echo "🚚 finished linting.."
+
+echo "⚠️ Check branch protection.."
+
+# Get current branch name
+current_branch=$(git branch --show-current)
+
+# Define restricted branches (main and develop are restricted in this example)
+restricted_branches="^(main|develop)$"
+
+# Check if the current branch matches restricted branches
+if [[ $current_branch =~ $restricted_branches ]]; then
+  echo "❌ You are on a restricted branch: $current_branch.. ❌"
+  echo "❌ Commits to this branch are not allowed via pre-commit hook.. ❌"
+  exit 1
+fi
