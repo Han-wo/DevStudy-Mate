@@ -1,27 +1,31 @@
-importScripts(
-  "https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js",
-);
-importScripts(
-  "https://www.gstatic.com/firebasejs/9.x.x/firebase-messaging-compat.js",
-);
+/* eslint-disable */
 
-firebase.initializeApp({
-  apiKey: "AIzaSyCZSfiKF9aTLykq3HllHZqzkoEKpxjNdCk",
-  authDomain: "hobbymate-7069a.firebaseapp.com",
-  projectId: "hobbymate-7069a",
-  messagingSenderId: "855306376568",
-  appId: "1:855306376568:web:240e10b43d2986b08d648d",
-  databaseURL: "https://hobbymate-7069a-default-rtdb.firebaseio.com",
-});
+import admin from "firebase-admin";
 
-const messaging = firebase.messaging();
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+    }),
+  });
+}
 
-messaging.onBackgroundMessage((payload) => {
-  const notificationTitle = payload.notification.title;
-  const notificationOptions = {
-    body: payload.notification.body,
-    icon: "/icon-192x192.png",
-  };
+export const sendPushNotification = async (token: string, message: string) => {
+  try {
+    await admin.messaging().send({
+      token,
+      notification: {
+        title: "HobbyMate 알림",
+        body: message,
+      },
+    });
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
-});
+    console.log("Push notification sent successfully!");
+  } catch (error) {
+    console.error("Error sending push notification", error);
+  }
+};
+
+export default sendPushNotification;
