@@ -5,6 +5,7 @@ import { getMessaging, getToken } from "firebase/messaging";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
+import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -14,6 +15,7 @@ const firebaseConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
 };
 
 const app = initializeApp(firebaseConfig);
@@ -25,6 +27,8 @@ export const messaging =
   typeof window !== "undefined" ? getMessaging(app) : null;
 export const analytics =
   typeof window !== "undefined" ? getAnalytics(app) : null;
+
+export const rtdb = getDatabase(app);
 
 export const requestForToken = async () => {
   if (!messaging) return;
