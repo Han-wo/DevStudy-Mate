@@ -1,14 +1,16 @@
 import "./globals.css";
 
+import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { Inter } from "next/font/google";
 
+import AuthInitializer from "@/components/provider/AuthInitializer";
 import Providers from "@/components/provider/index";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "HobbyMate",
-  description: "취미 기반 모임 매칭 서비스",
+  title: "DevMate",
+  description: "개발자 AI 스터디 도우미",
   manifest: "/manifest.json",
 };
 
@@ -17,14 +19,13 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const queryClient = new QueryClient();
+  const dehydratedState = dehydrate(queryClient);
   return (
     <html lang="ko">
-      {/* <head>
-        <meta name="theme-color" content="#000000" />
-        <link rel="apple-touch-icon" href="/icon-192x192.png" />
-      </head> */}
       <body className={inter.className}>
-        <Providers>{children}</Providers>
+        <AuthInitializer />
+        <Providers dehydratedState={dehydratedState}>{children}</Providers>
       </body>
     </html>
   );
