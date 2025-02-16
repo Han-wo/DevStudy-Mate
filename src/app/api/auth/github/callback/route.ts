@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     // 대시보드로 리다이렉트
-    return Response.redirect(new URL("/dashboard", request.url));
+    return Response.redirect(new URL("/repo", request.url));
   } catch (error) {
     console.error("에러:", error);
     return new Response("Internal Server Error", {
