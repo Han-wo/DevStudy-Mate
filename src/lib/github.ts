@@ -80,8 +80,13 @@ const githubApi = {
     return response.json();
   },
 
-  // 특정 파일의 내용 가져오기
-  async getFileContent(token: string, url: string) {
+  async getFileContent(
+    token: string,
+    owner: string,
+    repo: string,
+    path: string,
+  ) {
+    const url = `${BASE_URL}/repos/${owner}/${repo}/contents/${path}`;
     const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,
