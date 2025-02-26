@@ -1,4 +1,20 @@
-// OpenAI API 서비스 모듈
+// 파일 타입별 분석 기능 제공
+export interface CodeAnalysisResult {
+  fileOverview: string;
+  learningPoints: string[];
+  techStack?: string[];
+  keyTerms?: string[];
+  codeExplanation?: string;
+  sectionSummary?: string;
+  quizzes: {
+    question: string;
+    options: string[];
+    answer: number;
+    explanation: string;
+  }[];
+}
+
+// OpenAI API URL
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
 /**
@@ -15,28 +31,6 @@ function getFileExtension(fileName: string): string {
 function getFileType(fileName: string): "markdown" | "code" {
   const ext = getFileExtension(fileName);
   return ["md", "markdown", "txt"].includes(ext) ? "markdown" : "code";
-}
-
-/**
- * OpenAI API를 통해 파일을 분석하고 학습 노트를 생성하는 함수
- * @param apiKey OpenAI API 키
- * @param fileName 파일 이름
- * @param fileContent 파일 내용
- * @returns 학습 노트 객체
- */
-export interface CodeAnalysisResult {
-  fileOverview: string;
-  learningPoints: string[];
-  techStack?: string[];
-  keyTerms?: string[];
-  codeExplanation?: string;
-  sectionSummary?: string;
-  quizzes: {
-    question: string;
-    options: string[];
-    answer: number;
-    explanation: string;
-  }[];
 }
 
 export async function analyzeCode(
@@ -60,11 +54,7 @@ export async function analyzeCode(
       4. 코드 설명: 주요 코드 블록에 대한 상세한 설명(핵심 함수와 로직 위주)
       5. 학습 퀴즈: 이 코드와 관련된 5개의 퀴즈 문제로, 각 문제는 4개의 보기와 정답 번호(0-3), 그리고 해설을 포함해야 함
       
-      퀴즈는 다음과 같은 형식이어야 합니다:
-      - 개념 이해 문제: 코드에 사용된 패턴이나 개념에 대한 이해를 묻는 문제
-      - 코드 분석 문제: 특정 코드 블록이 무슨 일을 하는지 파악하는 문제
-      - 디버깅 문제: 코드의 잠재적 버그나 개선점을 찾는 문제
-      - 실제 구현 문제: 유사한 기능을 구현하는 방법에 대한 문제
+      중요: 모든 응답은 반드시 한국어로 작성해주세요. 코드에 대한 분석과 퀴즈 모두 한국어로 제공해야 합니다.
       
       결과는 다음 JSON 형식으로 반환해주세요:
       {
@@ -93,11 +83,7 @@ export async function analyzeCode(
       5. 관련 기술/용어: 문서에 언급된 주요 기술이나 용어
       6. 학습 퀴즈: 이 문서와 관련된 5개의 퀴즈 문제로, 각 문제는 4개의 보기와 정답 번호(0-3), 그리고 해설을 포함해야 함
       
-      퀴즈는 다음과 같은 형식이어야 합니다:
-      - 개념 이해 문제: 문서의 주요 개념에 대한 이해를 묻는 문제
-      - 내용 파악 문제: 문서의 특정 내용에 대한 기억을 테스트하는 문제
-      - 적용 문제: 배운 내용을 실제 상황에 적용하는 문제
-      - 분석 문제: 문서 내용에 대한 분석적 사고를 요구하는 문제
+      중요: 모든 응답은 반드시 한국어로 작성해주세요. 문서에 대한 분석과 퀴즈 모두 한국어로 제공해야 합니다.
       
       결과는 다음 JSON 형식으로 반환해주세요:
       {
@@ -154,76 +140,3 @@ export async function analyzeCode(
     throw new Error("파일 분석 중 오류가 발생했습니다.");
   }
 }
-
-/**
- * 학습 노트를 기반으로 퀴즈를 자동 생성하는 함수
- * @param apiKey OpenAI API 키
- * @param noteContent 학습 노트 내용
- * @returns 퀴즈 객체 배열
- */
-export interface QuizResult {
-  questions: {
-    question: string;
-    options: string[];
-    answer: number;
-    explanation: string;
-  }[];
-}
-
-export async function generateQuizzes(
-  apiKey: string,
-  noteContent: Record<string, unknown>,
-): Promise<QuizResult> {
-  try {
-    const response = await fetch(OPENAI_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: `당신은 개발자 학습을 위한 퀴즈 생성 AI입니다. 
-            주어진 학습 노트를 기반으로 5개의 퀴즈 문제를 생성해주세요.
-            각 문제는 다음 형식의 JSON 객체로 반환해주세요:
-            {
-              "questions": [
-                {
-                  "question": "문제 내용",
-                  "options": ["선택지1", "선택지2", "선택지3", "선택지4"],
-                  "answer": 정답 인덱스(0-3),
-                  "explanation": "정답 설명"
-                },
-                ...
-              ]
-            }`,
-          },
-          {
-            role: "user",
-            content: `학습 노트 내용:\n${JSON.stringify(noteContent)}`,
-          },
-        ],
-        temperature: 0.7,
-        max_tokens: 2000,
-        response_format: { type: "json_object" },
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(
-        `OpenAI API Error: ${response.status} - ${JSON.stringify(errorData)}`,
-      );
-    }
-
-    const data = await response.json();
-    return JSON.parse(data.choices[0].message.content);
-  } catch (error) {
-    throw new Error("퀴즈 생성 중 오류가 발생했습니다.");
-  }
-}
-
-export default { analyzeCode, generateQuizzes };
