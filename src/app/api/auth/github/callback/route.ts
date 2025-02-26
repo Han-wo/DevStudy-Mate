@@ -1,4 +1,5 @@
 /*eslint-disable */
+
 import { NextRequest } from "next/server";
 
 import { setCookie } from "@/utils/nextCookies";
@@ -76,5 +77,3 @@ export async function GET(request: NextRequest) {
     });
   }
 }
-
-export default GET;
