@@ -37,16 +37,14 @@ export default function RepositoryExplorer() {
             {selectedFile ? (
               <FileViewer
                 file={selectedFile}
+                repoName={selectedRepo} // 필수 prop 추가
                 content={fileContent}
-                onAnalyze={() => {
-                  // TODO: OpenAI 분석
-                }}
               />
             ) : (
               <div className="flex h-full items-center justify-center p-6 text-center text-gray-500">
                 <div>
                   <LuFileJson2 className="mx-auto size-30 text-gray-400" />
-                  <h3 className="mt-2 text-14-600  text-gray-900">
+                  <h3 className="mt-2 text-14-600 text-gray-900">
                     선택된 파일이 없습니다.
                   </h3>
                   <p className="mt-1 text-14-500 text-gray-500">
