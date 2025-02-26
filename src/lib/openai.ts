@@ -110,7 +110,7 @@ export async function analyzeCode(
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o", // 또는 사용 가능한 최신 모델
         messages: [
           {
             role: "system",
