@@ -15,3 +15,10 @@ export interface RepoItem {
   type: "file" | "dir";
   download_url?: string;
 }
+
+export interface GitHubUser {
+  id: number;
+  login: string;
+  name: string | null;
+  avatar_url: string;
+}
