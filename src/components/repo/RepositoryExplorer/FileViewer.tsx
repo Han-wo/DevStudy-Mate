@@ -40,7 +40,9 @@ export default function FileViewer({
       setLoading(true);
       setError(null);
 
-      const response = await fetch("/api/analyze", {
+      // Express 서버 API 엔드포인트로 요청 변경
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+      const response = await fetch(`${apiUrl}/api/analyze`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,7 +54,9 @@ export default function FileViewer({
       });
 
       if (!response.ok) {
-        throw new Error("분석 요청 중 오류가 발생했습니다.");
+        // 서버 응답 에러 처리 개선
+        const errorData = await response.json();
+        throw new Error(errorData.error || "분석 요청 중 오류가 발생했습니다.");
       }
 
       const data = await response.json();
