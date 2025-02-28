@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LuFileJson2 } from "react-icons/lu";
 
+import LoadingProgress from "@/components/common/LoadingState";
 import useGitHubAuth from "@/hooks/use-auth";
 import { createNote } from "@/lib/note";
 import { CodeAnalysisResult } from "@/lib/openai";
 import { RepoItem } from "@/types/github";
 
 import AnalysisResult from "./AnalysisRsult";
-import LoadingState from "./LoadingState";
 
 interface FileViewerProps {
   file: RepoItem;
@@ -26,6 +26,14 @@ export default function FileViewer({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<CodeAnalysisResult | null>(null);
+  const [analysisStage, setAnalysisStage] = useState<string | null>(null);
+
+  // 파일이 변경될 때마다 분석 결과 초기화
+  useEffect(() => {
+    // 파일이 변경되면 분석 결과 초기화
+    setAnalysis(null);
+    setError(null);
+  }, [file.path]); // file.path가 변경될 때만 실행
 
   // 파일 타입 확인 함수
   const getFileType = (fileName: string): "markdown" | "code" => {
@@ -39,9 +47,14 @@ export default function FileViewer({
     try {
       setLoading(true);
       setError(null);
+      setAnalysisStage("준비");
 
-      // Express 서버 API 엔드포인트로 요청 변경
+      setTimeout(() => setAnalysisStage("파일 처리"), 1000);
+
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+      setTimeout(() => setAnalysisStage("AI 모델 호출"), 2000);
+
       const response = await fetch(`${apiUrl}/api/analyze`, {
         method: "POST",
         headers: {
@@ -53,8 +66,9 @@ export default function FileViewer({
         }),
       });
 
+      setAnalysisStage("결과 처리");
+
       if (!response.ok) {
-        // 서버 응답 에러 처리 개선
         const errorData = await response.json();
         throw new Error(errorData.error || "분석 요청 중 오류가 발생했습니다.");
       }
@@ -67,6 +81,7 @@ export default function FileViewer({
       );
     } finally {
       setLoading(false);
+      setAnalysisStage(null);
     }
   };
 
@@ -78,6 +93,7 @@ export default function FileViewer({
       }
 
       setLoading(true);
+      setAnalysisStage("노트 저장 중");
 
       const noteData = {
         userId: user.id.toString(),
@@ -104,12 +120,9 @@ export default function FileViewer({
       setError("노트 저장 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
+      setAnalysisStage(null);
     }
   };
-
-  if (loading) {
-    return <LoadingState />;
-  }
 
   if (analysis) {
     return (
@@ -153,6 +166,9 @@ export default function FileViewer({
           </code>
         </pre>
       </div>
+
+      {/* 로딩 진행 표시기 */}
+      <LoadingProgress stage={analysisStage} isLoading={loading} />
     </div>
   );
 }
