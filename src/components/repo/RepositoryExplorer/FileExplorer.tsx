@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { LuSearch } from "react-icons/lu";
 
 import useGitHubAuth from "@/hooks/use-auth";
 import githubApi from "@/lib/github";
@@ -10,17 +11,22 @@ import Breadcrumbs from "./Breadcrumbs";
 import FileListItem from "./FileListItem";
 import LoadingState from "./LoadingState";
 
-interface Props {
+interface FileExplorerProps {
   repoFullName: string;
   onFileSelect: (file: RepoItem, content: string) => void;
 }
 
-export default function FileExplorer({ repoFullName, onFileSelect }: Props) {
+export default function FileExplorer({
+  repoFullName,
+  onFileSelect,
+}: FileExplorerProps) {
   const { token } = useGitHubAuth();
   const [contents, setContents] = useState<RepoItem[]>([]);
   const [breadcrumbs, setBreadcrumbs] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [selectedFilePath, setSelectedFilePath] = useState<string | null>(null);
 
   const fetchContents = async (path: string) => {
     if (!token || !repoFullName) return;
@@ -60,6 +66,7 @@ export default function FileExplorer({ repoFullName, onFileSelect }: Props) {
         await fetchContents(item.path);
       } else {
         setLoading(true);
+        setSelectedFilePath(item.path);
         const [owner, repo] = repoFullName.split("/");
         const content = await githubApi.getFileContent(
           token,
@@ -97,12 +104,32 @@ export default function FileExplorer({ repoFullName, onFileSelect }: Props) {
     }
   };
 
+  // 검색어에 따라 파일 필터링
+  const filteredContents = contents.filter((item) =>
+    item.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
   if (loading) {
     return <LoadingState />;
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white">
+    <div className="h-full">
+      <div className="border-b border-gray-200 bg-gray-50 p-4">
+        <div className="relative">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <LuSearch className="size-15 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            className="block w-full rounded-lg border border-gray-300 bg-white py-5 pl-20 pr-3 text-14-500 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            placeholder="파일 검색..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
+
       <Breadcrumbs items={breadcrumbs} onNavigate={handleBreadcrumbClick} />
 
       {errorMessage && (
@@ -111,22 +138,27 @@ export default function FileExplorer({ repoFullName, onFileSelect }: Props) {
         </div>
       )}
 
-      {contents.length === 0 ? (
-        <div className="p-8 text-center text-gray-500">
-          This directory is empty
-        </div>
-      ) : (
-        <div className="divide-y divide-gray-200">
-          {contents.map((item) => (
-            <FileListItem
-              key={item.path}
-              item={item}
-              onClick={handleFileClick}
-              isLoading={loading}
-            />
-          ))}
-        </div>
-      )}
+      <div className="h-[calc(100vh-20rem)] overflow-y-auto">
+        {filteredContents.length === 0 ? (
+          <div className="p-8 text-center text-gray-500">
+            {searchTerm
+              ? "검색 결과가 없습니다."
+              : "이 디렉토리는 비어있습니다."}
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-100">
+            {filteredContents.map((item) => (
+              <FileListItem
+                key={item.path}
+                item={item}
+                onClick={handleFileClick}
+                isLoading={loading}
+                isSelected={item.path === selectedFilePath}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

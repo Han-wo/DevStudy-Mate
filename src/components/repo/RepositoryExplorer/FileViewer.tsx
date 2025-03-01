@@ -1,7 +1,8 @@
 "use client";
 
+import clsx from "clsx";
 import { useEffect, useState } from "react";
-import { LuFileJson2 } from "react-icons/lu";
+import { LuBrain, LuCode, LuFileJson2 } from "react-icons/lu";
 
 import LoadingProgress from "@/components/common/LoadingState";
 import useGitHubAuth from "@/hooks/use-auth";
@@ -30,10 +31,9 @@ export default function FileViewer({
 
   // 파일이 변경될 때마다 분석 결과 초기화
   useEffect(() => {
-    // 파일이 변경되면 분석 결과 초기화
     setAnalysis(null);
     setError(null);
-  }, [file.path]); // file.path가 변경될 때만 실행
+  }, [file.path]);
 
   // 파일 타입 확인 함수
   const getFileType = (fileName: string): "markdown" | "code" => {
@@ -42,6 +42,26 @@ export default function FileViewer({
   };
 
   const fileType = getFileType(file.name);
+
+  // 파일 아이콘 선택 함수
+  const getFileIcon = () => {
+    const extension = file.name.split(".").pop()?.toLowerCase() || "";
+
+    if (["js", "jsx", "ts", "tsx"].includes(extension)) {
+      return <LuCode className="ml-5 mr-10 size-25 text-yellow-500" />;
+    }
+    if (["html", "css", "scss"].includes(extension)) {
+      return <LuFileJson2 className="ml-5 mr-10 size-25 text-blue-500" />;
+    }
+    if (["md", "txt"].includes(extension)) {
+      return <LuFileJson2 className="ml-5 mr-10 size-25 text-green-500" />;
+    }
+    if (["json", "yaml", "yml", "toml"].includes(extension)) {
+      return <LuFileJson2 className="ml-5 mr-10 size-25 text-purple-500" />;
+    }
+
+    return <LuFileJson2 className="ml-5 mr-10 size-25 text-gray-500" />;
+  };
 
   const handleAnalyze = async () => {
     try {
@@ -137,18 +157,22 @@ export default function FileViewer({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b border-gray-200 p-4">
-        <div className="flex items-center space-x-2">
-          <LuFileJson2 className="size-15 text-gray-400" />
-          <div>
-            <h3 className="font-medium text-gray-900">{file.name}</h3>
+      <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 p-4">
+        <div className="flex items-center">
+          {getFileIcon()}
+          <div className="ml-3">
+            <h3 className="text-16-700 text-gray-900">{file.name}</h3>
+            <p className="mt-1 text-12-500 text-gray-500">
+              {fileType === "code" ? "코드 파일" : "문서 파일"}
+            </p>
           </div>
         </div>
         <button
           type="button"
           onClick={handleAnalyze}
-          className="shadow-sm inline-flex items-center rounded-md bg-blue-600 px-8 py-5 text-14-600 text-white hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="shadow-sm flex items-center rounded-md bg-blue-600 px-4 py-5 text-14-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
+          <LuBrain className="mr-2 size-15" />
           AI 분석하기
         </button>
       </div>
@@ -159,16 +183,18 @@ export default function FileViewer({
         </div>
       )}
 
-      <div className="flex-1 overflow-auto p-4">
-        <pre className="rounded-lg bg-gray-50 p-4 text-14-500">
-          <code className="whitespace-pre-wrap font-mono text-gray-800">
-            {content}
-          </code>
-        </pre>
+      <div className="flex-1 overflow-auto">
+        <div className="h-[calc(100vh-20rem)] overflow-y-auto p-4">
+          <pre className={clsx("rounded-lg p-4 text-14-500", "bg-gray-50")}>
+            <code className="whitespace-pre-wrap font-mono text-gray-800">
+              {content}
+            </code>
+          </pre>
+        </div>
       </div>
 
       {/* 로딩 진행 표시기 */}
-      <LoadingProgress stage={analysisStage} isLoading={loading} />
+      {loading && <LoadingProgress stage={analysisStage} isLoading />}
     </div>
   );
 }
