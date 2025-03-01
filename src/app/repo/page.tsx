@@ -1,21 +1,24 @@
-import RepositoryExplorer from "@/components/repo/RepositoryExplorer";
+"use client";
 
-export default function ReposPage() {
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+
+export default function RepoRedirectPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const repoName = searchParams.get("repoName");
+
+  useEffect(() => {
+    if (repoName) {
+      router.replace(`/repo/${encodeURIComponent(repoName)}`);
+    } else {
+      router.replace("/");
+    }
+  }, [repoName, router]);
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <div className="text-20-700 tracking-tight text-gray-900">
-            DevMate
-          </div>
-          <p className="mt-8 text-14-600 text-gray-600">
-            파일을 고르고 AI에게 분석을 맡기세요
-          </p>
-        </div>
-        <div className="shadow overflow-hidden rounded-lg bg-white">
-          <RepositoryExplorer />
-        </div>
-      </div>
+    <div className="flex h-screen items-center justify-center">
+      <p className="text-gray-500">레포지토리 이동중...</p>
     </div>
   );
 }

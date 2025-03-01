@@ -27,7 +27,6 @@ export default function HomePage() {
   const [selectedRepo, setSelectedRepo] = useState<string>("");
 
   useEffect(() => {
-    // 인증 상태 확인 후 로그인 페이지로 리다이렉트
     if (isInitialized && !isAuthenticated) {
       router.push("/login");
     }
@@ -61,11 +60,10 @@ export default function HomePage() {
 
   const handleRepoSelect = () => {
     if (selectedRepo) {
-      router.push(`/repo?repoName=${selectedRepo}`);
+      router.push(`/repo/${encodeURIComponent(selectedRepo)}`);
     }
   };
 
-  // 로딩 중 표시
   if (!isInitialized || loading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50">
@@ -191,36 +189,24 @@ export default function HomePage() {
             </div>
             <div className="space-y-4">
               <div className="flex items-start gap-8 rounded-lg bg-blue-50 p-10">
-                <div className="flex size-5 shrink-0 items-center justify-center rounded-full font-semibold text-blue-800">
-                  1
-                </div>
                 <p className="text-gray-700">
                   <b>레포지토리 선택:</b> 분석하고 싶은 GitHub 레포지토리를
                   선택하세요.
                 </p>
               </div>
               <div className="flex items-start gap-8 rounded-lg bg-blue-50 p-10">
-                <div className="flex size-5 shrink-0 items-center justify-center rounded-fullfont-semibold text-blue-800">
-                  2
-                </div>
                 <p className="text-gray-700">
                   <b>파일 선택:</b> 레포지토리에서 학습하고 싶은 파일을
                   선택하세요.
                 </p>
               </div>
               <div className="flex items-start gap-8 rounded-lg bg-blue-50 p-10">
-                <div className="flex size-5 shrink-0 items-center justify-center rounded-full font-semibold text-blue-800">
-                  3
-                </div>
                 <p className="text-gray-700">
                   <b>AI 분석:</b> AI가 코드를 분석하고 학습 노트와 퀴즈를
                   생성합니다.
                 </p>
               </div>
               <div className="flex items-start gap-8 rounded-lg bg-blue-50 p-10">
-                <div className="flex size-5 shrink-0 items-center justify-center rounded-full font-semibold text-blue-800">
-                  4
-                </div>
                 <p className="text-gray-700">
                   <b>학습 및 복습:</b> 자동 생성된 퀴즈로 학습 내용을
                   복습하세요.
@@ -231,9 +217,9 @@ export default function HomePage() {
         </div>
 
         {/* 최근 학습 노트 */}
-        <div className="mt-10">
+        <div className="mt-15">
           <div className="mb-6 flex items-center gap-2 text-20-700 text-gray-900">
-            <LuClipboardList className="size-6 text-blue-600" />
+            <LuClipboardList className="size-18 text-blue-600" />
             최근 학습 노트
           </div>
 
@@ -253,7 +239,7 @@ export default function HomePage() {
                     <span className="text-13-500 text-gray-500">
                       {note.fileName}
                     </span>
-                    <span className="rounded-full bg-blue-100 px-2 py-1 text-12-600 text-blue-700">
+                    <span className="rounded-full bg-blue-100 px-2 py-5 text-12-600 text-blue-700">
                       {note.fileType === "code" ? "코드" : "문서"}
                     </span>
                   </div>
@@ -274,7 +260,7 @@ export default function HomePage() {
                     : undefined
                 }
                 disabled={!selectedRepo}
-                className={`mt-4 rounded-md px-4 py-2 text-14-600 text-white ${
+                className={`mt-4 rounded-md px-6 py-7 text-14-600 text-white ${
                   selectedRepo ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-400"
                 }`}
               >
