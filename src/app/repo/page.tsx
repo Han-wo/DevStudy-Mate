@@ -1,24 +1,18 @@
-"use client";
+// src/app/repo/page.tsx
+import { redirect } from "next/navigation";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+interface RepoPageProps {
+  searchParams: {
+    repoName?: string;
+  };
+}
 
-export default function RepoRedirectPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const repoName = searchParams.get("repoName");
+export default function RepoPage({ searchParams }: RepoPageProps) {
+  const { repoName } = searchParams;
 
-  useEffect(() => {
-    if (repoName) {
-      router.replace(`/repo/${encodeURIComponent(repoName)}`);
-    } else {
-      router.replace("/");
-    }
-  }, [repoName, router]);
-
-  return (
-    <div className="flex h-screen items-center justify-center">
-      <p className="text-gray-500">레포지토리 이동중...</p>
-    </div>
-  );
+  if (repoName) {
+    redirect(`/repo/${encodeURIComponent(repoName)}`);
+  } else {
+    redirect("/");
+  }
 }
