@@ -1,6 +1,10 @@
-import { v4 as uuidv4 } from "uuid";
+import { useMemo } from "react";
 
 import { CodeAnalysisResult } from "@/lib/openai";
+import {
+  generateIdsForItems,
+  generateOptimizationIds,
+} from "@/utils/uuidSetting";
 
 interface OverviewSectionProps {
   analysis: CodeAnalysisResult;
@@ -11,9 +15,25 @@ export default function OverviewSection({
   analysis,
   fileType,
 }: OverviewSectionProps) {
-  const pointIds = analysis.learningPoints.map(() => uuidv4());
-  const techIds = analysis.techStack?.map(() => uuidv4()) || [];
-  const termIds = analysis.keyTerms?.map(() => uuidv4()) || [];
+  const pointIds = useMemo(
+    () => generateIdsForItems(analysis.learningPoints),
+    [analysis.learningPoints],
+  );
+
+  const techIds = useMemo(
+    () => generateIdsForItems(analysis.techStack),
+    [analysis.techStack],
+  );
+
+  const termIds = useMemo(
+    () => generateIdsForItems(analysis.keyTerms),
+    [analysis.keyTerms],
+  );
+
+  const optimizationIds = useMemo(
+    () => generateOptimizationIds(analysis.codeOptimizations),
+    [analysis.codeOptimizations],
+  );
 
   return (
     <div className="space-y-6">
@@ -50,6 +70,191 @@ export default function OverviewSection({
               </span>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* 코드 최적화 섹션 */}
+      {fileType === "code" && analysis.codeOptimizations && (
+        <div>
+          <h3 className="text-18-700 text-gray-900">코드 최적화 제안</h3>
+
+          {/* 성능 개선 */}
+          {analysis.codeOptimizations.performanceImprovements?.length > 0 && (
+            <div className="mt-4">
+              <h4 className="text-16-700 text-gray-800">성능 개선</h4>
+              <ul className="mt-2 space-y-4">
+                {analysis.codeOptimizations.performanceImprovements.map(
+                  (item, index) => (
+                    <li
+                      key={optimizationIds.perf[index]}
+                      className="rounded-lg border border-blue-100 bg-blue-50 p-4"
+                    >
+                      <div className="text-16-600 text-blue-800">
+                        {item.issue}
+                      </div>
+                      <div className="mt-2">
+                        <span className="text-14-600 text-gray-700">
+                          위치:{" "}
+                        </span>
+                        <span className="text-14-500">{item.location}</span>
+                      </div>
+                      <div className="mt-2">
+                        <span className="text-14-600 text-gray-700">
+                          제안:{" "}
+                        </span>
+                        <span className="text-14-500">{item.suggestion}</span>
+                      </div>
+                      <div className="mt-2">
+                        <span className="text-14-600 text-gray-700">
+                          설명:{" "}
+                        </span>
+                        <span className="text-14-500">{item.explanation}</span>
+                      </div>
+                    </li>
+                  ),
+                )}
+              </ul>
+            </div>
+          )}
+
+          {/* 가독성 개선 */}
+          {analysis.codeOptimizations.readabilityImprovements?.length > 0 && (
+            <div className="mt-4">
+              <h4 className="text-16-700 text-gray-800">가독성 개선</h4>
+              <ul className="mt-2 space-y-4">
+                {analysis.codeOptimizations.readabilityImprovements.map(
+                  (item, index) => (
+                    <li
+                      key={optimizationIds.read[index]}
+                      className="rounded-lg border border-green-100 bg-green-50 p-4"
+                    >
+                      <div className="text-16-600 text-green-800">
+                        {item.issue}
+                      </div>
+                      <div className="mt-2">
+                        <span className="text-14-600 text-gray-700">
+                          위치:{" "}
+                        </span>
+                        <span className="text-14-500">{item.location}</span>
+                      </div>
+                      <div className="mt-2">
+                        <span className="text-14-600 text-gray-700">
+                          제안:{" "}
+                        </span>
+                        <span className="text-14-500">{item.suggestion}</span>
+                      </div>
+                      <div className="mt-2">
+                        <span className="text-14-600 text-gray-700">
+                          설명:{" "}
+                        </span>
+                        <span className="text-14-500">{item.explanation}</span>
+                      </div>
+                    </li>
+                  ),
+                )}
+              </ul>
+            </div>
+          )}
+
+          {/* 유지보수성 개선 */}
+          {analysis.codeOptimizations.maintainabilityImprovements?.length >
+            0 && (
+            <div className="mt-4">
+              <h4 className="text-16-700 text-gray-800">유지보수성 개선</h4>
+              <ul className="mt-2 space-y-4">
+                {analysis.codeOptimizations.maintainabilityImprovements.map(
+                  (item, index) => (
+                    <li
+                      key={optimizationIds.maint[index]}
+                      className="rounded-lg border border-purple-100 bg-purple-50 p-4"
+                    >
+                      <div className="text-16-600 text-purple-800">
+                        {item.issue}
+                      </div>
+                      <div className="mt-2">
+                        <span className="text-14-600 text-gray-700">
+                          위치:{" "}
+                        </span>
+                        <span className="text-14-500">{item.location}</span>
+                      </div>
+                      <div className="mt-2">
+                        <span className="text-14-600 text-gray-700">
+                          제안:{" "}
+                        </span>
+                        <span className="text-14-500">{item.suggestion}</span>
+                      </div>
+                      <div className="mt-2">
+                        <span className="text-14-600 text-gray-700">
+                          설명:{" "}
+                        </span>
+                        <span className="text-14-500">{item.explanation}</span>
+                      </div>
+                    </li>
+                  ),
+                )}
+              </ul>
+            </div>
+          )}
+
+          {/* 모범 사례 */}
+          {analysis.codeOptimizations.bestPractices?.length > 0 && (
+            <div className="mt-4">
+              <h4 className="text-16-700 text-gray-800">모범 사례</h4>
+              <ul className="mt-2 space-y-4">
+                {analysis.codeOptimizations.bestPractices.map((item, index) => (
+                  <li
+                    key={optimizationIds.best[index]}
+                    className="rounded-lg border border-yellow-100 bg-yellow-50 p-4"
+                  >
+                    <div className="text-16-600 text-yellow-800">
+                      {item.issue}
+                    </div>
+                    <div className="mt-2">
+                      <span className="text-14-600 text-gray-700">위치: </span>
+                      <span className="text-14-500">{item.location}</span>
+                    </div>
+                    <div className="mt-2">
+                      <span className="text-14-600 text-gray-700">제안: </span>
+                      <span className="text-14-500">{item.suggestion}</span>
+                    </div>
+                    <div className="mt-2">
+                      <span className="text-14-600 text-gray-700">설명: </span>
+                      <span className="text-14-500">{item.explanation}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* 잠재적 버그 */}
+          {analysis.codeOptimizations.potentialBugs?.length > 0 && (
+            <div className="mt-4">
+              <h4 className="text-16-700 text-gray-800">잠재적 버그</h4>
+              <ul className="mt-2 space-y-4">
+                {analysis.codeOptimizations.potentialBugs.map((item, index) => (
+                  <li
+                    key={optimizationIds.bug[index]}
+                    className="rounded-lg border border-red-100 bg-red-50 p-4"
+                  >
+                    <div className="text-16-600 text-red-800">{item.issue}</div>
+                    <div className="mt-2">
+                      <span className="text-14-600 text-gray-700">위치: </span>
+                      <span className="text-14-500">{item.location}</span>
+                    </div>
+                    <div className="mt-2">
+                      <span className="text-14-600 text-gray-700">제안: </span>
+                      <span className="text-14-500">{item.suggestion}</span>
+                    </div>
+                    <div className="mt-2">
+                      <span className="text-14-600 text-gray-700">설명: </span>
+                      <span className="text-14-500">{item.explanation}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
 

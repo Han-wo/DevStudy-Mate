@@ -9,6 +9,7 @@ import useGitHubAuth from "@/hooks/use-auth";
 import { createNote } from "@/lib/note";
 import { CodeAnalysisResult } from "@/lib/openai";
 import { RepoItem } from "@/types/github";
+import { isJavaScriptOrTypeScript } from "@/utils/fileTypes";
 
 import AnalysisResult from "./AnalysisRsult";
 
@@ -115,6 +116,9 @@ export default function FileViewer({
       setLoading(true);
       setAnalysisStage("노트 저장 중");
 
+      // 유틸리티 함수 사용
+      const isJsTs = fileType === "code" && isJavaScriptOrTypeScript(file.name);
+
       const noteData = {
         userId: user.id.toString(),
         title: `${file.name} 학습 노트`,
@@ -126,6 +130,7 @@ export default function FileViewer({
         ...(fileType === "code" && {
           techStack: analysisData.techStack,
           codeExplanation: analysisData.codeExplanation,
+          ...(isJsTs && { codeOptimizations: analysisData.codeOptimizations }),
         }),
         ...(fileType === "markdown" && {
           keyTerms: analysisData.keyTerms,
