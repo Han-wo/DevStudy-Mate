@@ -69,7 +69,7 @@ export async function analyzeCode(
   fileContent: string,
 ): Promise<CodeAnalysisResult> {
   try {
-    const apiUrl = "http://localhost:4000";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
     const response = await fetch(`${apiUrl}/api/analyze`, {
       method: "POST",
       headers: {
