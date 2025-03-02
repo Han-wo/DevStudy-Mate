@@ -1,3 +1,19 @@
+// 코드 분석 결과 관련 인터페이스
+export interface OptimizationItem {
+  issue: string;
+  location: string;
+  suggestion: string;
+  explanation: string;
+}
+
+export interface CodeOptimizations {
+  performanceImprovements: OptimizationItem[];
+  readabilityImprovements: OptimizationItem[];
+  maintainabilityImprovements: OptimizationItem[];
+  bestPractices: OptimizationItem[];
+  potentialBugs: OptimizationItem[];
+}
+
 // 퀴즈 타입들
 export type QuizType = "multipleChoice" | "shortAnswer" | "essay";
 
@@ -29,20 +45,10 @@ export interface EssayQuiz extends BaseQuiz {
   keyPoints: string[];
 }
 
-// 통합 퀴즈 타입 (이전 형식 호환성 포함)
-export type Quiz =
-  | MultipleChoiceQuiz
-  | ShortAnswerQuiz
-  | EssayQuiz
-  | {
-      // 이전 형식 호환성을 위한 타입
-      question: string;
-      options: string[];
-      answer: number;
-      explanation: string;
-    };
+// 통합 퀴즈 타입
+export type Quiz = MultipleChoiceQuiz | ShortAnswerQuiz | EssayQuiz;
 
-// 파일 타입별 분석 기능 제공
+// 파일 분석 결과 인터페이스
 export interface CodeAnalysisResult {
   fileOverview: string;
   learningPoints: string[];
@@ -50,9 +56,10 @@ export interface CodeAnalysisResult {
   keyTerms?: string[];
   codeExplanation?: string;
   sectionSummary?: string;
+  codeOptimizations?: CodeOptimizations;
   quizzes: Quiz[];
+  fileName?: string;
 }
-
 /**
  * Express 서버 API를 호출하여 파일 분석
  */

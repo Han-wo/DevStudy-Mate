@@ -9,10 +9,7 @@ import {
  * 객관식 퀴즈인지 확인하는 타입 가드
  */
 export function isMultipleChoiceQuiz(quiz: Quiz): quiz is MultipleChoiceQuiz {
-  return (
-    ("type" in quiz && quiz.type === "multipleChoice") ||
-    (!("type" in quiz) && "options" in quiz && Array.isArray(quiz.options))
-  );
+  return "type" in quiz && quiz.type === "multipleChoice";
 }
 
 /**

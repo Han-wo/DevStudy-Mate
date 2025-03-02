@@ -12,7 +12,7 @@ import {
 } from "firebase/firestore";
 
 import { db } from "@/firebase/config";
-import { Quiz } from "@/lib/openai";
+import { CodeOptimizations, Quiz } from "@/lib/openai";
 
 export interface StudyNote {
   id?: string;
@@ -27,14 +27,13 @@ export interface StudyNote {
   keyTerms?: string[];
   codeExplanation?: string;
   sectionSummary?: string;
-  quizzes: Quiz[]; // 업데이트된 퀴즈 타입 사용
+  codeOptimizations?: CodeOptimizations; // 변경된 부분
+  quizzes: Quiz[];
   createdAt?: string;
   updatedAt?: string;
 }
 
 const NOTES_COLLECTION = "studyNotes";
-
-// 나머지 함수들은 그대로 유지
 
 /**
  * 학습 노트 생성
