@@ -112,7 +112,7 @@ export default function HomePage() {
       <div className="mx-auto max-w-6xl px-4 pt-8 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {/* 레포지토리 선택 카드 */}
-          <div className="rounded-xl bg-white p-6 shadow-sm">
+          <div className="rounded-xl bg-white p-10 shadow-sm">
             <div className="mb-4 flex items-center gap-2 text-18-700 text-gray-900">
               <LuGithub className="size-15 text-blue-600" />
               학습할 레포지토리 선택
@@ -120,7 +120,7 @@ export default function HomePage() {
             <p className="mb-4 text-gray-600">
               분석하고 싶은 GitHub 레포지토리를 선택하세요.
             </p>
-            <div className="space-y-4">
+            <div className="space-y-10">
               <select
                 className="w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 value={selectedRepo}
@@ -133,28 +133,28 @@ export default function HomePage() {
                   </option>
                 ))}
               </select>
-              <button
-                type="button"
-                onClick={handleRepoSelect}
-                disabled={!selectedRepo}
-                className={`w-full rounded-md py-2 text-center text-white ${
-                  selectedRepo
-                    ? "bg-blue-600 hover:bg-blue-700"
-                    : "cursor-not-allowed bg-gray-400"
-                }`}
-              >
-                레포지토리 탐색하기
-              </button>
             </div>
+            <button
+              type="button"
+              onClick={handleRepoSelect}
+              disabled={!selectedRepo}
+              className={`w-full rounded-md py-2 text-center text-white mt-215 ${
+                selectedRepo
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "cursor-not-allowed bg-gray-400"
+              }`}
+            >
+              레포지토리 탐색하기
+            </button>
           </div>
 
           {/* 학습 통계 카드 */}
-          <div className="rounded-xl bg-white p-6 shadow-sm">
+          <div className="rounded-xl bg-white p-10 shadow-sm">
             <div className="mb-4 flex items-center gap-2 text-18-700 text-gray-900">
               <LuBrain className="size-15 text-blue-600" />
               학습 통계
             </div>
-            <div className="space-y-3">
+            <div className="space-y-10">
               <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
                 <span>작성한 학습 노트</span>
                 <span className="font-semibold text-blue-600">
@@ -169,25 +169,23 @@ export default function HomePage() {
                 <span>분석한 파일 수</span>
                 <span className="font-semibold text-blue-600">0</span>
               </div>
-              <div className="mt-4">
-                <button
-                  type="button"
-                  onClick={() => router.push("/notes")}
-                  className="w-full rounded-md bg-blue-100 py-2 text-center text-blue-700 hover:bg-blue-200"
-                >
-                  학습 노트 관리하기
-                </button>
-              </div>
             </div>
+            <button
+              type="button"
+              onClick={() => router.push("/notes")}
+              className="w-full rounded-md bg-blue-100 py-2 text-center text-blue-700 hover:bg-blue-200 mt-160"
+            >
+              학습 노트 관리하기
+            </button>
           </div>
 
           {/* 사용 가이드 카드 */}
-          <div className="rounded-xl bg-white p-6 shadow-sm md:col-span-2 lg:col-span-1">
-            <div className="mb-4 flex items-center gap-2 text-18-700 text-gray-900">
+          <div className="rounded-xl bg-white p-10 shadow-sm md:col-span-2 lg:col-span-1">
+            <div className="mb-4 flex items-center gap-4 text-18-700 text-gray-900">
               <LuBook className="size-15 text-blue-600" />
               사용 가이드
             </div>
-            <div className="space-y-4">
+            <div className="space-y-10">
               <div className="flex items-start gap-8 rounded-lg bg-blue-50 p-10">
                 <p className="text-gray-700">
                   <b>레포지토리 선택:</b> 분석하고 싶은 GitHub 레포지토리를
@@ -228,18 +226,18 @@ export default function HomePage() {
               {recentNotes.map((note) => (
                 <div
                   key={note.id}
-                  className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md"
+                  className="cursor-pointer rounded-lg border border-gray-200 bg-white p-10 shadow-sm transition-all hover:shadow-md"
                   onClick={() => router.push(`/notes/${note.id}`)}
                 >
                   <h3 className="text-16-700 text-gray-900">{note.title}</h3>
                   <p className="mt-1 text-14-500 text-gray-600 line-clamp-2">
                     {note.fileOverview}
                   </p>
-                  <div className="mt-3 flex items-center justify-between">
+                  <div className="mt-5 flex items-center justify-between">
                     <span className="text-13-500 text-gray-500">
                       {note.fileName}
                     </span>
-                    <span className="rounded-full bg-blue-100 px-2 py-5 text-12-600 text-blue-700">
+                    <span className="rounded-full bg-blue-100 px-6 py-5 text-12-600 text-blue-700">
                       {note.fileType === "code" ? "코드" : "문서"}
                     </span>
                   </div>

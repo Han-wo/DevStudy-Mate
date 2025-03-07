@@ -1,17 +1,5 @@
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  serverTimestamp,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+/* eslint-disable no-console */
 
-import { db } from "@/firebase/config";
 import { CodeOptimizations, Quiz } from "@/lib/openai";
 
 export interface StudyNote {
@@ -27,26 +15,36 @@ export interface StudyNote {
   keyTerms?: string[];
   codeExplanation?: string;
   sectionSummary?: string;
-  codeOptimizations?: CodeOptimizations; // 변경된 부분
+  codeOptimizations?: CodeOptimizations;
   quizzes: Quiz[];
   createdAt?: string;
   updatedAt?: string;
 }
 
-const NOTES_COLLECTION = "studyNotes";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 /**
  * 학습 노트 생성
  */
 export async function createNote(note: StudyNote): Promise<string> {
   try {
-    const docRef = await addDoc(collection(db, NOTES_COLLECTION), {
-      ...note,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
+    const response = await fetch(`${API_URL}/api/note`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(note),
     });
-    return docRef.id;
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "노트 생성 중 오류가 발생했습니다.");
+    }
+
+    const data = await response.json();
+    return data.id;
   } catch (error) {
+    console.error("노트 생성 오류:", error);
     throw new Error("노트 생성 중 오류가 발생했습니다.");
   }
 }
@@ -56,17 +54,24 @@ export async function createNote(note: StudyNote): Promise<string> {
  */
 export async function getUserNotes(userId: string): Promise<StudyNote[]> {
   try {
-    const q = query(
-      collection(db, NOTES_COLLECTION),
-      where("userId", "==", userId),
-    );
-    const querySnapshot = await getDocs(q);
+    const response = await fetch(`${API_URL}/api/note?userId=${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-    return querySnapshot.docs.map((docs) => ({
-      id: docs.id,
-      ...docs.data(),
-    })) as StudyNote[];
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.error || "노트 목록을 가져오는 중 오류가 발생했습니다.",
+      );
+    }
+
+    const data = await response.json();
+    return data.notes;
   } catch (error) {
+    console.error("노트 목록 조회 오류:", error);
     throw new Error("노트 목록을 가져오는 중 오류가 발생했습니다.");
   }
 }
@@ -74,16 +79,33 @@ export async function getUserNotes(userId: string): Promise<StudyNote[]> {
 /**
  * 특정 학습 노트 조회
  */
-export async function getNoteById(noteId: string): Promise<StudyNote | null> {
+export async function getNoteById(
+  noteId: string,
+  userId: string,
+): Promise<StudyNote | null> {
   try {
-    const docRef = doc(db, NOTES_COLLECTION, noteId);
-    const docSnap = await getDoc(docRef);
+    // userId를 쿼리 파라미터로 추가
+    const response = await fetch(
+      `${API_URL}/api/note/${noteId}?userId=${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
 
-    if (docSnap.exists()) {
-      return { id: docSnap.id, ...docSnap.data() } as StudyNote;
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.error || "노트를 가져오는 중 오류가 발생했습니다.",
+      );
     }
-    return null;
+
+    const data = await response.json();
+    return data.note;
   } catch (error) {
+    console.error("노트 조회 오류:", error);
     throw new Error("노트를 가져오는 중 오류가 발생했습니다.");
   }
 }
@@ -96,12 +118,27 @@ export async function updateNote(
   noteData: Partial<StudyNote>,
 ): Promise<void> {
   try {
-    const docRef = doc(db, NOTES_COLLECTION, noteId);
-    await updateDoc(docRef, {
-      ...noteData,
-      updatedAt: serverTimestamp(),
+    // userId가 포함되어 있는지 확인
+    if (!noteData.userId) {
+      throw new Error("사용자 ID가 필요합니다.");
+    }
+
+    const response = await fetch(`${API_URL}/api/note/${noteId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(noteData),
     });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.error || "노트 업데이트 중 오류가 발생했습니다.",
+      );
+    }
   } catch (error) {
+    console.error("노트 업데이트 오류:", error);
     throw new Error("노트 업데이트 중 오류가 발생했습니다.");
   }
 }
@@ -109,11 +146,28 @@ export async function updateNote(
 /**
  * 학습 노트 삭제
  */
-export async function deleteNote(noteId: string): Promise<void> {
+export async function deleteNote(
+  noteId: string,
+  userId: string,
+): Promise<void> {
   try {
-    const docRef = doc(db, NOTES_COLLECTION, noteId);
-    await deleteDoc(docRef);
+    // userId를 쿼리 파라미터로 추가
+    const response = await fetch(
+      `${API_URL}/api/note/${noteId}?userId=${userId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "노트 삭제 중 오류가 발생했습니다.");
+    }
   } catch (error) {
+    console.error("노트 삭제 오류:", error);
     throw new Error("노트 삭제 중 오류가 발생했습니다.");
   }
 }
