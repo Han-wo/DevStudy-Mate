@@ -9,7 +9,6 @@ import useGitHubAuth from "@/hooks/use-auth";
 import { createNote } from "@/lib/note";
 import { CodeAnalysisResult } from "@/lib/openai";
 import { RepoItem } from "@/types/github";
-import { isJavaScriptOrTypeScript } from "@/utils/fileTypes";
 
 import AnalysisResult from "./AnalysisRsult";
 
@@ -116,9 +115,7 @@ export default function FileViewer({
       setLoading(true);
       setAnalysisStage("노트 저장 중");
 
-      // 유틸리티 함수 사용
-      const isJsTs = fileType === "code" && isJavaScriptOrTypeScript(file.name);
-
+      // 필요한 데이터만 포함하여 노트 데이터 구성 (퀴즈 데이터 제외)
       const noteData = {
         userId: user.id.toString(),
         title: `${file.name} 학습 노트`,
@@ -130,18 +127,20 @@ export default function FileViewer({
         ...(fileType === "code" && {
           techStack: analysisData.techStack,
           codeExplanation: analysisData.codeExplanation,
-          ...(isJsTs && { codeOptimizations: analysisData.codeOptimizations }),
         }),
         ...(fileType === "markdown" && {
           keyTerms: analysisData.keyTerms,
           sectionSummary: analysisData.sectionSummary,
         }),
-        quizzes: analysisData.quizzes,
+        // 빈 배열로 퀴즈 필드 초기화 (스키마 호환성 유지)
+        quizzes: [],
       };
 
-      const noteId = await createNote(noteData);
-      alert(`노트가 성공적으로 저장되었습니다. (ID: ${noteId})`);
+      // 서버 API를 통해 노트 저장 요청
+      await createNote(noteData);
+      alert("노트가 성공적으로 저장되었습니다.");
     } catch (err) {
+      console.error("노트 저장 오류:", err); //eslint-disable-line
       setError("노트 저장 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
